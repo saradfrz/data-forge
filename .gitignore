@@ -2,3 +2,5 @@ include/data/minio/.minio.sys/buckets/.bloomcycle.bin
 include/data/minio/.minio.sys/buckets/.usage.json
 include/data/minio/.minio.sys/buckets/.heal
 include/data/minio/.minio.sys/tmp
+
+.venv/
