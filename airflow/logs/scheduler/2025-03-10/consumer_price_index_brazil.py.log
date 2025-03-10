@@ -13698,3 +13698,31 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'include'
 [2025-03-10T20:02:41.083+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/consumer_price_index_brazil.py
 [2025-03-10T20:02:41.096+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/consumer_price_index_brazil.py took 0.022 seconds
+[2025-03-10T20:03:12.084+0000] {processor.py:186} INFO - Started process (PID=6431) to work on /opt/airflow/dags/consumer_price_index_brazil.py
+[2025-03-10T20:03:12.085+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/consumer_price_index_brazil.py for tasks to queue
+[2025-03-10T20:03:12.087+0000] {logging_mixin.py:190} INFO - [2025-03-10T20:03:12.087+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/consumer_price_index_brazil.py
+[2025-03-10T20:03:12.090+0000] {logging_mixin.py:190} INFO - [2025-03-10T20:03:12.089+0000] {dagbag.py:387} ERROR - Failed to import: /opt/airflow/dags/consumer_price_index_brazil.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/dagbag.py", line 383, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/airflow/dags/consumer_price_index_brazil.py", line 6, in <module>
+    from include.consumer_price_index_brazil.tasks import _fetch_ipca_data, _get_last_datapoint
+ModuleNotFoundError: No module named 'include'
+[2025-03-10T20:03:12.090+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/consumer_price_index_brazil.py
+[2025-03-10T20:03:12.104+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/consumer_price_index_brazil.py took 0.024 seconds
+[2025-03-10T20:03:44.136+0000] {processor.py:186} INFO - Started process (PID=6441) to work on /opt/airflow/dags/consumer_price_index_brazil.py
+[2025-03-10T20:03:44.137+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/consumer_price_index_brazil.py for tasks to queue
+[2025-03-10T20:03:44.139+0000] {logging_mixin.py:190} INFO - [2025-03-10T20:03:44.138+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/consumer_price_index_brazil.py
+[2025-03-10T20:03:44.143+0000] {logging_mixin.py:190} INFO - [2025-03-10T20:03:44.142+0000] {dagbag.py:387} ERROR - Failed to import: /opt/airflow/dags/consumer_price_index_brazil.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/dagbag.py", line 383, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/airflow/dags/consumer_price_index_brazil.py", line 6, in <module>
+    from include.consumer_price_index_brazil.tasks import _fetch_ipca_data, _get_last_datapoint
+ModuleNotFoundError: No module named 'include'
+[2025-03-10T20:03:44.143+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/consumer_price_index_brazil.py
+[2025-03-10T20:03:44.160+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/consumer_price_index_brazil.py took 0.029 seconds

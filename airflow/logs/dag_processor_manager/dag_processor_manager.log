@@ -41459,3 +41459,24 @@ File Path                                         PID    Runtime      # DAGs    
 /opt/airflow/dags/even_or_odd.py                                           1           0  0.08s           2025-03-10T20:02:13                      12
 /opt/airflow/dags/consumer_price_index_brazil.py                           0           1  0.04s           2025-03-10T20:02:10                       5
 ================================================================================
+[2025-03-10T20:02:54.162+0000] {manager.py:821} INFO - Searching for files in /opt/airflow/dags
+[2025-03-10T20:02:54.163+0000] {manager.py:824} INFO - There are 2 files in /opt/airflow/dags
+[2025-03-10T20:03:02.202+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                         PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/even_or_odd.py                                           1           0  0.09s           2025-03-10T20:02:43                      12
+/opt/airflow/dags/consumer_price_index_brazil.py                           0           1  0.04s           2025-03-10T20:02:41                       5
+================================================================================
+[2025-03-10T20:03:35.208+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                         PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/even_or_odd.py                                           1           0  0.08s           2025-03-10T20:03:14                      12
+/opt/airflow/dags/consumer_price_index_brazil.py                           0           1  0.04s           2025-03-10T20:03:12                       5
+================================================================================
+[2025-03-10T20:03:54.805+0000] {manager.py:465} INFO - Exiting gracefully upon receiving signal 15
