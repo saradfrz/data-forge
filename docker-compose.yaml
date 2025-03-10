@@ -108,6 +108,8 @@ services:
       - "7077:7077"
     environment:
       - SPARK_MODE=master
+      - SPARK_CLASSPATH=/opt/hive/lib/*
+      - SPARK_SQL_CATALOG_IMPLEMENTATION=hive
     networks:
       - ndsnet
 
@@ -121,6 +123,8 @@ services:
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_CLASSPATH=/opt/hive/lib/*
+      - SPARK_SQL_CATALOG_IMPLEMENTATION=hive
     networks:
       - ndsnet
 
