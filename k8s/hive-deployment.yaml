@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hive-metastore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hive-metastore
+  template:
+    metadata:
+      labels:
+        app: hive-metastore
+    spec:
+      containers:
+        - name: hive-metastore
+          image: bde2020/hive:latest
+          ports:
+            - containerPort: 9083
+          env:
+            - name: SERVICE_NAME
+              value: "metastore"
+            - name: HIVE_METASTORE_URIS
+              value: "thrift://hive-metastore:9083"
+            - name: DB_DRIVER
+              value: "org.postgresql.Driver"
+            - name: DB_URI
+              value: "jdbc:postgresql://postgres:5432/metastore"
+            - name: DB_USER
+              value: "hive"
+            - name: DB_PASSWORD
+              value: "hive"
+          volumeMounts:
+            - name: hive-config
+              mountPath: /opt/hive/conf
+      volumes:
+        - name: hive-config
+          configMap:
+            name: hive-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hive-metastore
+spec:
+  selector:
+    app: hive-metastore
+  ports:
+    - port: 9083
+      targetPort: 9083
