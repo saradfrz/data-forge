@@ -1,0 +1,21 @@
+[2025-03-07T21:17:01.395+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-03-07T21:17:01.407+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: stock_market.is_api_available __airflow_temporary_run_2025-03-07T21:17:00.989065+00:00__ [queued]>
+[2025-03-07T21:17:01.412+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: stock_market.is_api_available __airflow_temporary_run_2025-03-07T21:17:00.989065+00:00__ [queued]>
+[2025-03-07T21:17:01.413+0000] {taskinstance.py:2867} INFO - Starting attempt 1 of 1
+[2025-03-07T21:17:01.423+0000] {taskinstance.py:2890} INFO - Executing <Task(DecoratedSensorOperator): is_api_available> on 2025-03-07 00:00:00+00:00
+[2025-03-07T21:17:01.429+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'stock_market', 'is_api_available', '__***_temporary_run_2025-03-07T21:17:00.989065+00:00__', '--job-id', '20', '--raw', '--subdir', 'DAGS_FOLDER/stock_market.py', '--cfg-path', '/tmp/tmpnxsxlhvs']
+[2025-03-07T21:17:01.431+0000] {standard_task_runner.py:105} INFO - Job 20: Subtask is_api_available
+[2025-03-07T21:17:01.433+0000] {logging_mixin.py:190} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70 DeprecationWarning: This process (pid=9086) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2025-03-07T21:17:01.434+0000] {standard_task_runner.py:72} INFO - Started process 9087 to run task
+[2025-03-07T21:17:01.464+0000] {task_command.py:467} INFO - Running <TaskInstance: stock_market.is_api_available __airflow_temporary_run_2025-03-07T21:17:00.989065+00:00__ [running]> on host 5261d49f4e4b
+[2025-03-07T21:17:01.530+0000] {taskinstance.py:3134} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='stock_market' AIRFLOW_CTX_TASK_ID='is_api_available' AIRFLOW_CTX_EXECUTION_DATE='2025-03-07T00:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='__***_temporary_run_2025-03-07T21:17:00.989065+00:00__'
+[2025-03-07T21:17:01.531+0000] {taskinstance.py:732} INFO - ::endgroup::
+[2025-03-07T21:17:01.533+0000] {python.py:75} INFO - Poking callable: <function stock_market.<locals>.is_api_available at 0x7fc9cbd311c0>
+[2025-03-07T21:17:01.539+0000] {base.py:84} INFO - Retrieving connection 'ibge_api'
+[2025-03-07T21:17:01.539+0000] {stock_market.py:21} INFO - IBGE API URL: http://servicodados.ibge.gov.br/api/v2/metadados/pesquisas
+[2025-03-07T21:17:01.681+0000] {base.py:339} INFO - Success criteria met. Exiting.
+[2025-03-07T21:17:01.718+0000] {taskinstance.py:341} INFO - ::group::Post task execution logs
+[2025-03-07T21:17:01.719+0000] {taskinstance.py:353} INFO - Marking task as SUCCESS. dag_id=stock_market, task_id=is_api_available, run_id=__***_temporary_run_2025-03-07T21:17:00.989065+00:00__, execution_date=20250307T000000, start_date=20250307T211701, end_date=20250307T211701
+[2025-03-07T21:17:01.768+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-03-07T21:17:01.779+0000] {taskinstance.py:3901} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-03-07T21:17:01.781+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

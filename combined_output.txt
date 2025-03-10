@@ -1,8 +1,6 @@
 ---------
 docker-compose.yaml code
 ----------
-version: '3'
-
 networks:
   ndsnet:
     driver: bridge
@@ -24,6 +22,7 @@ services:
       - ./initdb:/docker-entrypoint-initdb.d  # Mounting init scripts directory
     networks:
       - ndsnet
+    restart: always
 
   airflow-init:
     image: apache/airflow:2.10.5
@@ -32,8 +31,11 @@ services:
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__WEBSERVER__SECRET_KEY=my_secure_secret
     volumes:
-      - ./dags:/opt/airflow/dags
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
     command: >
       bash -c "airflow db init &&
       airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin"
@@ -48,13 +50,18 @@ services:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+      - AIRFLOW__WEBSERVER__SECRET_KEY=my_secure_secret
+      - AIRFLOW__WEBSERVER__BASE_URL=http://airflow-webserver:8080
     volumes:
-      - ./dags:/opt/airflow/dags
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
     ports:
       - "8080:8080"
     command: webserver
     networks:
       - ndsnet
+    restart: always
 
   airflow-scheduler:
     image: apache/airflow:2.10.5
@@ -63,30 +70,16 @@ services:
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__WEBSERVER__SECRET_KEY=my_secure_secret
     volumes:
-      - ./dags:/opt/airflow/dags
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
     command: scheduler
     networks:
       - ndsnet
+    restart: always
 
-  superset:
-    image: apache/superset:latest
-    container_name: superset
-    depends_on:
-      - postgres
-    environment:
-      - SUPERSET_CONFIG_PATH=/etc/superset
-      - SUPERSET_DATABASE_URL=postgresql+psycopg2://superset:superset@postgres/superset
-    volumes:
-      - ./superset:/etc/superset
-    ports:
-      - "8088:8088"
-    command: >
-      sh -c "superset db upgrade &&
-      superset init &&
-      superset fab create-admin --username admin --firstname Superset --lastname Admin --email admin@example.com --password admin"
-    networks:
-      - ndsnet
 
   minio:
     image: minio/minio:latest
@@ -164,9 +157,10 @@ spec:
     spec:
       containers:
       - name: dbt
-        image: fishtownanalytics/dbt:latest
+        image: xemuliam/dbt:1.9-bigquery
         command: ["sleep", "infinity"]
-        # Adjust the command as needed to run your dbt jobs or use a Kubernetes Job for one-off runs.
+        ports:
+          - containerPort: 7070  # The port on which the container will listen
 
 
 ---------
@@ -177,12 +171,15 @@ kind: Service
 metadata:
   name: dbt
 spec:
+  type: NodePort  # Exposes the service on a port on each node
   selector:
     app: dbt
   ports:
-  - port: 8082        # New external port
-    targetPort: 8080  # Container's port remains unchanged
-  type: ClusterIP
+    - name: http
+      port: 9090        # The port that the service exposes internally within the cluster
+      targetPort: 7070  # The port on the container that receives the traffic
+      protocol: TCP
+      nodePort: 30090   # The port on the node (i.e., localhost:30090) to access the service externally
 
 
 ---------
@@ -268,6 +265,7 @@ spec:
 ---------
 k8s/superset-deployment.yaml code
 ----------
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -291,22 +289,43 @@ spec:
         - name: SUPERSET_ENV
           value: "production"
         - name: SUPERSET_DATABASE_URI
-          value: "postgresql://superset:superset@postgres:5432/superset"
-        - name: SUPERSET_CONFIG_PATH  # ✅ Explicitly set the config file path
-          value: "/etc/superset/superset_config.py"
+          value: "postgresql+psycopg2://superset:superset@host.docker.internal:5432/superset"
+        - name: SUPERSET_CONFIG_PATH
+          value: "/etc/superset"
         - name: SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: superset-secret
               key: secret_key
+        - name: PORT
+          value: "8088"
         volumeMounts:
-          - name: superset-config
-            mountPath: /etc/superset  # ✅ Mounting the file
-            subPath: superset_config.py  # ✅ Ensuring it's a file
-      volumes:
         - name: superset-config
-          configMap:
-            name: superset-config
+          mountPath: /etc/superset
+          subPath: superset_config.py
+        # The command initializes the DB, creates an admin user, and starts the server.
+        # Note: Adjust the command if necessary for idempotence and production use.
+        command:
+          - sh
+          - -c
+          - |
+            pip install psycopg2-binary && \
+            pip install pillow && \
+            superset db upgrade && \
+            superset init && \
+            superset fab create-admin --username admin --firstname Superset --lastname Admin --email admin@example.com --password admin && \
+            superset run -h 0.0.0.0 -p 8088 --with-threads --reload --debugger
+        resources:
+          requests:
+            memory: "1Gi"  # Minimum memory needed to run the container
+            cpu: "500m"    # Minimum CPU needed to run the container
+          limits:
+            memory: "2Gi"  # Maximum memory the container can consume
+            cpu: "1"       # Maximum CPU the container can consume
+      volumes:
+      - name: superset-config
+        configMap:
+          name: superset-config
 ---
 apiVersion: v1
 kind: Service
@@ -329,7 +348,7 @@ metadata:
 data:
   superset_config.py: |
     import os
-    SQLALCHEMY_DATABASE_URI = "postgresql://superset:superset@postgres:5432/superset"
+    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://superset:superset@host.docker.internal:5432/superset"
     SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key")
 ---
 apiVersion: v1
@@ -338,7 +357,8 @@ metadata:
   name: superset-secret
 type: Opaque
 data:
-  secret_key: eW91cl9zZWNyZXRfa2V5  # Base64 encoded value of "your_secret_key"
+  # Base64 encoded value of "your_secret_key"
+  secret_key: eW91cl9zZWNyZXRfa2V5
 
 
 ---------

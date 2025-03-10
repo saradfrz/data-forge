@@ -32,11 +32,11 @@ make -f .makefile all-down
 ```
 To start only Docker Compose services:
 ```sh
-make compose-up
+make -f .makefile compose-up
 ```
 To stop Docker Compose services:
 ```sh
-make compose-down
+make -f .makefile compose-down
 ```
 To deploy Kubernetes manifests:
 ```sh
