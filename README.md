@@ -53,6 +53,16 @@ make -f .makefile k8s-delete
 ### Debug
 
 ```sh
+docker exec -it <CONTAINER> sh
+docker exec -it minio sh
+
+```
+
+```sh
+docker logs <CONTAINER>
+```
+
+```sh
 kubectl get pods -n default
 ```
 

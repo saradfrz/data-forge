@@ -6,7 +6,7 @@ import os
 MINIO_BUCKET_NAME = "etl-input"  # This can be overridden by the event data if needed
 
 # AWS Glue Configuration
-GLUE_CONTAINER_NAME = "aws-glue-etl"
+GLUE_CONTAINER_NAME = "aws-glue"
 SPARK_JOB_PATH = "/home/hadoop/workspace/src/etl_job.py"
 GLUE_JOB_NAME = "minio-etl-job"
 
