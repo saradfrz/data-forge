@@ -91,11 +91,15 @@ services:
   aws-lambda:
     image: public.ecr.aws/lambda/python:3.9
     container_name: aws-lambda
+    environment:
+      - LAMBDA_TASK_ROOT=/var/task
     ports:
       - "9010:8080"
     volumes:
       - ./lambda_function:/var/task
     command: ["app.lambda_handler"]
+    networks:
+      - ndsnet
 
   minio:
     image: minio/minio:latest
@@ -108,8 +112,10 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio123
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+      - MINIO_NOTIFY_WEBHOOK_ENABLE=on
+      - MINIO_NOTIFY_WEBHOOK_ENDPOINT=http://aws-lambda:8080/2015-03-31/functions/function/invocations
     command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
