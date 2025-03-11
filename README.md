@@ -71,7 +71,7 @@ kubectl logs <superset_pod_name>
 | MinIO Console   | S3 Storage Management         | `http://localhost:9001`  | True     |
 | MinIO API       | S3-Compatible API             | `http://localhost:9000`  | True     |
 | Spark Master UI | Spark Cluster Monitoring      | `http://localhost:8082`  | True     |
-| Kafka           | Event Streaming Broker        | `http://localhost:9092`  | True    |
+| Kafka           | Event Streaming Broker        | `http://localhost:9092`  | True     |
 | Metabase        | BI and Data Exploration       | `http://localhost:30300` | True     |
 | Apache Superset | Advanced Data Visualization   | `http://localhost:30088` | True     |
 | Docker Proxy    | Docker Daemon Proxy           | `http://localhost:2376`  | True     |

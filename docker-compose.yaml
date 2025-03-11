@@ -77,6 +77,25 @@ services:
       - ndsnet
     restart: always
 
+  aws-glue-etl:
+    image: public.ecr.aws/glue/aws-glue-libs:5
+    container_name: aws-glue-etl
+    volumes:
+      - ./workspace:/home/hadoop/workspace 
+    command: [ "spark-submit", "--master", "local[*]", "/home/hadoop/workspace/src/etl_job.py" ]
+    environment:
+      - S3_ENDPOINT=http://minio:9000
+    networks:
+      - ndsnet
+
+  aws-lambda:
+    image: public.ecr.aws/lambda/python:3.9
+    container_name: aws-lambda
+    ports:
+      - "9010:8080"
+    volumes:
+      - ./lambda_function:/var/task
+    command: ["app.lambda_handler"]
 
   minio:
     image: minio/minio:latest
@@ -137,3 +156,5 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - ndsnet
+
+
