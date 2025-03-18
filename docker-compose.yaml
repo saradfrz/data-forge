@@ -79,6 +79,19 @@ services:
     networks:
       - ndsnet
     restart: always
+
+
+  minio-webhook:
+    build: 
+      context: ./minio-webhook 
+      dockerfile: Dockerfile
+    container_name: minio-webhook
+    restart: always
+    ports:
+      - "5000:5000"  
+    networks:
+      - ndsnet
+
   
   minio-setup:
     image: minio/mc
@@ -86,15 +99,20 @@ services:
     depends_on:
       minio:
         condition: service_healthy
+      minio-webhook:
+        condition: service_started
     entrypoint:
-        - /bin/sh
-        - -c
-        - |
-            until mc alias set myminio http://minio:9000 minio minio123; do sleep 5; done;
-            mc event add myminio/etl-input arn:minio:sqs::lambda:webhook --event put;
+      - /bin/sh
+      - -c
+      - |
+        until mc alias set myminio http://minio:9000 minio minio123; do sleep 5; done;
+        mc admin config set myminio notify_webhook:1 endpoint="http://minio-webhook:5000/webhook"
+        mc admin service restart myminio
+        mc event add myminio/etl-input arn:minio:sqs::webhook --event put;
     networks:
       - ndsnet
 
+  
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -108,6 +126,8 @@ services:
     environment:
       - MINIO_ROOT_USER=minio
       - MINIO_ROOT_PASSWORD=minio123
+      - MINIO_NOTIFY_WEBHOOK_ENABLE_webhook=on
+      - MINIO_NOTIFY_WEBHOOK_ENDPOINT_webhook=http://minio-webhook:5000/webhook
     command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -120,8 +140,15 @@ services:
   aws-lambda:
     image: public.ecr.aws/lambda/python:3.9
     container_name: aws-lambda
+    env_file: ./lambda_function/.env
     environment:
       - LAMBDA_TASK_ROOT=/var/task
+      - ETL_SCRIPT_PATH=/opt/bitnami/spark/workspace/etl_job.py
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - POSTGRES_URL=jdbc:postgresql://postgres:5432/airflow
+      - TABLE_NAME=exchange_rates
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "9010:8080"
     volumes:
@@ -177,7 +204,7 @@ services:
       - AWS_ACCESS_KEY_ID=minio
       - AWS_SECRET_ACCESS_KEY=minio123
       - AWS_REGION=us-east-1
-      - S3_ENDPOINT=http://minio:900
+      - S3_ENDPOINT=http://minio:9000
     networks:
       - ndsnet
 

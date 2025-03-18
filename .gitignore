@@ -5,6 +5,7 @@
 airflow/include/data/minio/.minio.sys
 airflow/logs/
 .venv/
+.env
 .aws/
 .jars/
 
