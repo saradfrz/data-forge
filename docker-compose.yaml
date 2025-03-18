@@ -107,8 +107,7 @@ services:
       - |
         until mc alias set myminio http://minio:9000 minio minio123; do sleep 5; done;
         mc admin config set myminio notify_webhook:1 endpoint="http://minio-webhook:5000/webhook"
-        mc admin service restart myminio
-        mc event add myminio/etl-input arn:minio:sqs::webhook --event put;
+        mc event add myminio/etl-input arn:minio:sqs::1:webhook --event put;
     networks:
       - ndsnet
 
@@ -140,7 +139,8 @@ services:
   aws-lambda:
     image: public.ecr.aws/lambda/python:3.9
     container_name: aws-lambda
-    env_file: ./lambda_function/.env
+    entrypoint: ["/var/task/entrypoint.sh"]
+    env_file: ./lambda/.env
     environment:
       - LAMBDA_TASK_ROOT=/var/task
       - ETL_SCRIPT_PATH=/opt/bitnami/spark/workspace/etl_job.py
@@ -152,7 +152,7 @@ services:
     ports:
       - "9010:8080"
     volumes:
-      - ./lambda_function:/var/task
+      - ./lambda:/var/task
     command: ["app.lambda_handler"]
     networks:
       - ndsnet
@@ -207,6 +207,26 @@ services:
       - S3_ENDPOINT=http://minio:9000
     networks:
       - ndsnet
+  jupyter:
+    image: jupyter/pyspark-notebook:latest
+    container_name: jupyter
+    depends_on:
+      - spark-master
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - PYSPARK_PYTHON=python3
+      - AWS_ACCESS_KEY_ID=minio
+      - AWS_SECRET_ACCESS_KEY=minio123
+      - AWS_REGION=us-east-1
+      - S3_ENDPOINT=http://minio:9000
+    command: start-notebook.sh --NotebookApp.token=''
+    networks:
+      - ndsnet
+
 
   docker-proxy:
     image: alpine/socat
