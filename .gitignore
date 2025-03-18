@@ -8,6 +8,9 @@ airflow/logs/
 .env
 .aws/
 .jars/
+.ipynb_checkpoints
+notebooks/spark_course/code/*.ipynb
+
 
 # --------------------------------------------------------
 # Global Ignored Files & Directories
