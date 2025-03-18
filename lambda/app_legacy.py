@@ -113,6 +113,7 @@ def lambda_handler(event, context):
     
     try:
         # Trigger the Spark job
+        logger.info("Triggering Spark job...")
         output = trigger.trigger_spark_job(bucket_name, file_key)
         success_message = f"Spark job submitted successfully: {output}"
         logger.info(success_message)

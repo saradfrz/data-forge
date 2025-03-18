@@ -139,7 +139,6 @@ services:
   aws-lambda:
     image: public.ecr.aws/lambda/python:3.9
     container_name: aws-lambda
-    entrypoint: ["/var/task/entrypoint.sh"]
     env_file: ./lambda/.env
     environment:
       - LAMBDA_TASK_ROOT=/var/task
