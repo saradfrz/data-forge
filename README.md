@@ -50,6 +50,12 @@ To delete Kubernetes resources:
 make -f .makefile k8s-delete
 ```
 
+### Running custom pipelines
+
+```sh
+make -f .makefile compose-up-spark
+```
+
 ### Debug
 
 ```sh

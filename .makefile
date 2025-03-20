@@ -33,3 +33,12 @@ k8s-delete:
 # Tear down all services (both Docker Compose and Kubernetes)
 .PHONY: all-down
 all-down: compose-down k8s-delete
+
+
+# Bring up only specific Docker Compose services
+
+# spark pipeline
+.PHONY: compose-up-spark
+compose-up-spark:
+	docker-compose -f $(COMPOSE_FILE) up -d jupyter spark-worker spark-master minio-setup minio
+
