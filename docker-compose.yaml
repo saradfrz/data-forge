@@ -168,7 +168,7 @@ services:
       - ndsnet
 
   spark-master:
-    image: bitnami/spark:latest
+    image: bitnami/spark:3.5.0
     container_name: spark-master
     ports:
       - "8082:8080"
@@ -187,7 +187,7 @@ services:
       - ndsnet
 
   spark-worker:
-    image: bitnami/spark:latest
+    image: bitnami/spark:3.5.0
     container_name: spark-worker
     depends_on:
       - spark-master
@@ -210,7 +210,7 @@ services:
   jupyter:
     build:
       context: ./jupyter
-      dockerfile: Dockerfile
+      dockerfile: ./Dockerfile
     container_name: jupyter
     depends_on:
       - spark-master

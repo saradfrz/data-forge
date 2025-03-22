@@ -56,12 +56,17 @@ make -f .makefile k8s-delete
 make -f .makefile compose-up-spark
 ```
 
+
+
 ### Debug
 
 ```sh
 docker exec -it <CONTAINER> sh
 docker exec -it minio sh
+```
 
+```sh
+docker-compose build --no-cache jupyter
 ```
 
 ```sh
