@@ -1,0 +1,91 @@
+# --------------------------------------------------------
+# Custom
+# --------------------------------------------------------
+
+airflow/include/data/minio/.minio.sys
+airflow/logs/
+airflow
+
+.venv/
+.env
+.aws/
+.jars/
+jars/
+jupyter/notebooks/spark_course
+.ipynb_checkpoints
+notebooks/spark_course/code/*.ipynb
+.ipynb_checkpoints/
+docs/ignore/*
+jupyter/notebooks/business_case
+producao_agricola_municipal
+
+lambda
+minio-webhook
+playground
+workspace
+
+
+# --------------------------------------------------------
+# Global Ignored Files & Directories
+# --------------------------------------------------------
+
+# Ignore OS-specific files (macOS, etc.)
+.DS_Store
+
+# Ignore Python cache files and compiled artifacts
+__pycache__/
+*.py[cod]
+
+# Ignore virtual environments and egg-info directories
+env/
+venv/
+*.egg-info/
+
+# --------------------------------------------------------
+# Log Files and Temporary Data
+# --------------------------------------------------------
+
+# Ignore all log files and directories containing logs
+*.log
+logs/
+airflow/logs/
+**/logs/
+
+# Ignore Airflow temporary directories and scheduler/process caches
+airflow/tmp/
+airflow/dag_processor_manager/
+
+# --------------------------------------------------------
+# Local Data Files (Pipeline Inputs & Outputs)
+# --------------------------------------------------------
+
+# Exclude all local pipeline feed data and Minio system files
+include/data/
+airflow/include/data/
+playground/input/
+
+# (The Minio system subdirectories below are already within the data directories)
+# include/data/minio/.minio.sys/
+# airflow/include/data/minio/.minio.sys/
+
+# --------------------------------------------------------
+# Other Generated/Local Files
+# --------------------------------------------------------
+
+# Ignore AWS credentials (do not commit sensitive keys)
+.aws/
+
+# Ignore auto-generated file listings and combined outputs
+list.txt
+file_list.txt
+combined_output.txt
+
+# Optionally ignore the hidden jars directory (if used only locally)
+.jars/
+
+# Ignore backup or temporary files
+*.tmp
+*.bak
+
+# Ignore local Docker override configurations
+docker-compose.override.yaml
