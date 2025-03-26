@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hive-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hive-server
+  template:
+    metadata:
+      labels:
+        app: hive-server
+    spec:
+      containers:
+        - name: hive-server
+          image: bde2020/hive:latest
+          ports:
+            - containerPort: 10000
+          env:
+            - name: SERVICE_NAME
+              value: "hiveserver2"
+            - name: HIVE_METASTORE_URIS
+              value: "thrift://hive-metastore:9083"
+          volumeMounts:
+            - name: hive-config
+              mountPath: /opt/hive/conf
+      volumes:
+        - name: hive-config
+          configMap:
+            name: hive-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hive-server
+spec:
+  selector:
+    app: hive-server
+  ports:
+    - port: 10000
+      targetPort: 10000

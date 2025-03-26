@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbt
+spec:
+  type: NodePort  # Exposes the service on a port on each node
+  selector:
+    app: dbt
+  ports:
+    - name: http
+      port: 9090        # The port that the service exposes internally within the cluster
+      targetPort: 7070  # The port on the container that receives the traffic
+      protocol: TCP
+      nodePort: 30090   # The port on the node (i.e., localhost:30090) to access the service externally

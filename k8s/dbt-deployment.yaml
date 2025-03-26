@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dbt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dbt
+  template:
+    metadata:
+      labels:
+        app: dbt
+    spec:
+      containers:
+      - name: dbt
+        image: xemuliam/dbt:1.9-bigquery
+        command: ["sleep", "infinity"]
+        ports:
+          - containerPort: 7070  # The port on which the container will listen
