@@ -23,6 +23,7 @@ lambda
 minio-webhook
 playground
 workspace
+robots/*/
 
 
 # --------------------------------------------------------
