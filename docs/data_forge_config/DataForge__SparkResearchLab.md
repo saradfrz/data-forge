@@ -12,7 +12,6 @@ Esta configuração é composta por quatro serviços:
   - **`spark-master`**: O nó mestre do cluster Spark.  
   - **`spark-worker`**: O nó trabalhador (worker) que executa tarefas distribuídas.  
     
-
 No contexto do Docker Compose, **`spark-master` e `spark-worker` são dois serviços**.
 
 * **Serviço**: No Docker Compose, um serviço é uma definição de como um contêiner deve ser executado (imagem, variáveis de ambiente, volumes, etc.). Ele pode escalar e rodar múltiplos contêineres a partir dessa definição.  
@@ -21,6 +20,18 @@ No contexto do Docker Compose, **`spark-master` e `spark-worker` são dois servi
 * **`spark-master`** é um **serviço** que inicia um contêiner rodando o Spark no modo "master".  
 * **`spark-worker`** é outro **serviço** que inicia um contêiner rodando o Spark no modo "worker".  
 * Cada serviço é definido separadamente no **`docker-compose.yml`**, mas pode criar múltiplos contêineres (exemplo: mais de um worker escalando **`docker-compose up --scale spark-worker=3`**).
+
+## Rodando o exemplo
+- Executar
+```sh
+make -f .makefile compose-up-spark
+```
+- Rodar script `jupyter/notebooks/example/fake_currency_conversion.py` generando o arquivo `jupyter/notebooks/example/fake_currency_conversion_from_brl.csv`
+- Abrir o MinIO, disponível em  http://localhost:9001/, e criar um bucket com o nome "example"
+- Subir o arquivo `fake_currency_conversion_from_brl.csv`nesse bucket
+- Acessar o notebook exemplo no jupyter lab: `http://localhost:8888/lab/tree/work/example/example.ipynb`
+- `Kernel` > `Restart Kernel and run all cells` 
+
 
 ## **Configurando pyspark.sql.SparkSession no Jupyter Lab** 
 
