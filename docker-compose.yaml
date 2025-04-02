@@ -1,11 +1,21 @@
 networks:
   ndsnet:
     driver: bridge
+    external: true
 
 volumes:
   postgres_data:
 
 services:
+
+  robots:
+    build: ./robots
+    container_name: robots
+    ports:
+      - "5455:5455"
+    networks:
+      - ndsnet
+
   postgres:
     image: postgres:13
     container_name: postgres
@@ -36,7 +46,7 @@ services:
       - ./airflow/plugins:/opt/airflow/plugins
     command: >
       bash -c "airflow db init &&
-      airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin"
+      airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin" 
     networks:
       - ndsnet
 
@@ -57,6 +67,7 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
+      - /var/run/docker.sock:/var/run/docker.sock
     command: webserver
     networks:
       - ndsnet
@@ -75,6 +86,7 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
+      - /var/run/docker.sock:/var/run/docker.sock
     command: scheduler
     networks:
       - ndsnet

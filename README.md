@@ -55,25 +55,56 @@ make -f .makefile k8s-delete
 ```sh
 make -f .makefile compose-up-spark
 make -f .makefile compose-down-spark
+
+make -f .makefile compose-up-robots
+make -f .makefile compose-down-robots
 ```
 
 ### Debug
 
 ```sh
+# Kill network
+docker network rm ndsnet
+```
+
+```sh
+# Rebuild image
+docker images | grep data-forge-robots
+docker rmi id
+make -f .makefile compose-up-robots
+
+```
+
+```sh
+docker ps
 docker exec -it <CONTAINER> sh
-docker exec -it minio sh
-```
-
-```sh
-docker-compose build --no-cache jupyter
-```
-
-```sh
+docker-compose build --no-cache <CONTAINER>
 docker logs <CONTAINER>
+
+docker images
+docker rmi <IMAGE_ID>
+docker rm <CONTAINER_ID>
+docker container prune -f
 ```
 
+
 ```sh
+kubectl get pods
 kubectl get pods -n default
+kubectl get pods --all-namespaces
+
+kubectl exec -it <POD_NAME> -- sh
+kubectl exec -it <POD_NAME> -- bash
+kubectl exec -it <POD_NAME> -c <CONTAINER_NAME> -- sh
+
+docker build --no-cache -t my-image:latest .
+docker push my-image:latest
+kubectl rollout restart deployment <DEPLOYMENT_NAME>
+
+kubectl logs <POD_NAME>
+kubectl logs <POD_NAME> -c <CONTAINER_NAME>
+kubectl logs -f <POD_NAME>
+kubectl logs -f -l app=<APP_LABEL>
 ```
 
 ```sh
