@@ -91,39 +91,7 @@ services:
     networks:
       - ndsnet
     restart: always
-
-
-  minio-webhook:
-    build: 
-      context: ./minio-webhook 
-      dockerfile: Dockerfile
-    container_name: minio-webhook
-    ports:
-      - "5000:5000"  
-    networks:
-      - ndsnet
-    restart: always
-
-  
-  minio-setup:
-    image: minio/mc
-    container_name: minio-setup
-    depends_on:
-      minio:
-        condition: service_healthy
-      minio-webhook:
-        condition: service_started
-    entrypoint:
-      - /bin/sh
-      - -c
-      - |
-        until mc alias set myminio http://minio:9000 minio minio123; do sleep 5; done;
-        mc admin config set myminio notify_webhook:1 endpoint="http://minio-webhook:5000/webhook"
-        mc event add myminio/etl-input arn:minio:sqs::1:webhook --event put;
-    networks:
-      - ndsnet
-
-  
+   
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -240,8 +208,6 @@ services:
       - S3_ENDPOINT=http://minio:9000
     networks:
       - ndsnet
-
-
 
   docker-proxy:
     image: alpine/socat

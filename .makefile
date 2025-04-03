@@ -37,9 +37,7 @@ k8s-delete:
 
 # Tear down all services (both Docker Compose and Kubernetes)
 .PHONY: all-down
-all-down: 
-	compose-down 
-	k8s-delete
+all-down: compose-down k8s-delete
 	docker network rm ndsnet
 
 
@@ -49,11 +47,11 @@ all-down:
 .PHONY: compose-up-spark
 compose-up-spark:
 	docker network create ndsnet
-	docker-compose -f $(COMPOSE_FILE) up -d jupyter spark-worker spark-master minio-setup minio minio-webhook
+	docker-compose -f $(COMPOSE_FILE) up -d jupyter spark-worker spark-master minio 
 
 .PHONY: compose-down-spark
 compose-down-spark:
-	docker-compose -f $(COMPOSE_FILE) down jupyter spark-worker spark-master minio-setup minio minio-webhook
+	docker-compose -f $(COMPOSE_FILE) down jupyter spark-worker spark-master minio
 	docker network rm ndsnet
 
 
@@ -61,7 +59,7 @@ compose-down-spark:
 .PHONY: compose-up-robots
 compose-up-robots:
 	docker network create ndsnet
-	docker-compose -f $(COMPOSE_FILE) up -d robots postgres minio-setup minio minio-webhook airflow-init airflow-webserver airflow-scheduler
+	docker-compose -f $(COMPOSE_FILE) up -d robots postgres minio airflow-init airflow-webserver airflow-scheduler
 	kubectl apply -f $(K8S_DIR)/dbt-deployment.yaml
 	kubectl apply -f $(K8S_DIR)/dbt-service.yaml
 	sudo chmod 666 /var/run/docker.sock
@@ -69,7 +67,7 @@ compose-up-robots:
 
 .PHONY: compose-down-robots
 compose-down-robots:
-	docker-compose -f $(COMPOSE_FILE) down robots postgres minio-setup minio minio-webhook airflow-init airflow-webserver airflow-scheduler
+	docker-compose -f $(COMPOSE_FILE) down robots postgres minio airflow-init airflow-webserver airflow-scheduler
 	kubectl delete -f $(K8S_DIR)/dbt-deployment.yaml
 	kubectl delete -f $(K8S_DIR)/dbt-service.yaml
 	docker network rm ndsnet
