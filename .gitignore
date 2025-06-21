@@ -1,0 +1,69 @@
+# OS & Editor Files
+
+.DS_Store
+*.bak
+*.tmp
+
+
+# Python & Jupyter
+
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.ipynb_checkpoints
+notebooks/spark_course/code/*.ipynb
+
+
+# Virtual Environments
+
+.venv/
+env/
+venv/
+*.egg-info/
+
+
+# Logs & Temporary Files
+
+*.log
+logs/
+**/logs/
+airflow/logs/
+airflow/tmp/
+airflow/dag_processor_manager/
+docs/ignore/*
+
+
+# Data, Outputs & Generated Files
+
+etl/bronze/*.json
+include/
+include/data/
+airflow/include/data/
+airflow/include/data/minio/.minio.sys
+list.txt
+file_list.txt
+combined_output.txt
+producao_agricola_municipal
+
+
+# Docker & Cloud
+
+docker-compose.override.yaml
+.aws/
+.env
+.env.*
+
+
+# Project-Specific & Miscellaneous
+
+jars/
+.jars/
+jupyter/notebooks/spark_course
+jupyter/notebooks/business_case
+lambda
+minio-webhook
+workspace
+robots/*/
+airflow
+
+# End of .gitignore

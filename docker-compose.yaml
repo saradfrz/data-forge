@@ -1,0 +1,183 @@
+networks:
+  ndsnet:
+    driver: bridge
+    external: true
+
+volumes:
+  sys_postgres_data:
+  silver_postgres_data:
+
+services:
+
+  robots:
+    build: ./robots
+    container_name: robots
+    ports:
+      - "5455:5455"
+    networks:
+      - ndsnet
+
+  sys-postgres:
+    image: postgres:13
+    container_name: sys-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - sys_postgres_data:/var/lib/postgresql/data
+      - ./initdb/sys:/docker-entrypoint-initdb.d  
+    networks:
+      - ndsnet
+    restart: always
+
+  silver-postgres:
+    image: postgres:13
+    container_name: silver-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - silver_postgres_data:/var/lib/postgresql/data
+      - ./initdb/silver:/docker-entrypoint-initdb.d  
+    networks:
+      - ndsnet
+    restart: always
+
+  airflow-init:
+    image: apache/airflow:2.10.5
+    container_name: airflow-init
+    depends_on:
+      - sys-postgres
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@${AIRFLOW_DB_HOST}:${AIRFLOW_DB_PORT}/${AIRFLOW_DB_NAME}
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_SECRET}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+    command: 
+      bash -c "sleep 10 && airflow db migrate && airflow users create --username ${AIRFLOW_USER} --firstname ${AIRFLOW_FIRSTNAME} --lastname ${AIRFLOW_LASTNAME} --role Admin --email ${AIRFLOW_EMAIL} --password ${AIRFLOW_PASSWORD}"
+    networks:
+      - ndsnet
+
+  airflow-webserver:
+    image: apache/airflow:2.10.5
+    container_name: airflow-webserver
+    depends_on:
+      - airflow-init
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@${AIRFLOW_DB_HOST}:${AIRFLOW_DB_PORT}/${AIRFLOW_DB_NAME}
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_SECRET}
+      - AIRFLOW__WEBSERVER__BASE_URL=http://airflow-webserver:8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: webserver
+    networks:
+      - ndsnet
+    restart: always
+
+  airflow-scheduler:
+    image: apache/airflow:2.10.5
+    container_name: airflow-scheduler
+    depends_on:
+      - airflow-init
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@${AIRFLOW_DB_HOST}:${AIRFLOW_DB_PORT}/${AIRFLOW_DB_NAME}
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_SECRET}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: scheduler
+    networks:
+      - ndsnet
+    restart: always
+   
+  spark-master:
+    image: bitnami/spark:3.5.0
+    container_name: spark-master
+    ports:
+      - "8082:8080"
+      - "7077:7077"
+    volumes:
+    - ./spark/src:/opt/bitnami/spark/workspace
+    environment:
+      - SPARK_MODE=master
+      - SPARK_CLASSPATH=/opt/hive/lib/*
+      - SPARK_SQL_CATALOG_IMPLEMENTATION=hive
+    networks:
+      - ndsnet
+
+  spark-worker:
+    image: bitnami/spark:3.5.0
+    container_name: spark-worker
+    depends_on:
+      - spark-master
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./spark/src:/opt/bitnami/spark/workspace
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_CLASSPATH=/opt/hive/lib/*
+      - SPARK_SQL_CATALOG_IMPLEMENTATION=hive
+    networks:
+      - ndsnet
+
+  jupyter:
+    build:
+      context: ./jupyter
+      dockerfile: ./Dockerfile
+    container_name: jupyter
+    user: root
+    depends_on:
+      - spark-master
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./jupyter/notebooks:/home/jovyan/work
+      - ./etl/bronze:/home/jovyan/data/bronze
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - PYSPARK_PYTHON=python3
+    networks:
+      - ndsnet
+
+  docker-proxy:
+    image: alpine/socat
+    container_name: docker-proxy
+    command: "TCP4-LISTEN:2375,fork,reuseaddr UNIX-CONNECT:/var/run/docker.sock"
+    ports:
+      - "2376:2375"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - ndsnet
+
+  trino:
+      image: trinodb/trino:443
+      container_name: trino
+      ports:  
+        - "8088:8088"
+      volumes:
+        - ./trino/etc:/etc/trino
+        - ./etl/gold:/data/gold  # Parquet files path
+      networks:
+        - ndsnet
+
+
