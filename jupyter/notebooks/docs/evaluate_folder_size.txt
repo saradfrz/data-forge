@@ -1,0 +1,5 @@
+ls -1 etl/bronze | wc -l && du -sh etl/bronze
+
+
+677 files
+2.9M    etl/bronze
