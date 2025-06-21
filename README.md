@@ -3,7 +3,6 @@
 <p align="center">
   <img src="img/DataForge.png" alt="Data Forge" width="300">
   <br>
-  <img src="img/DataForge500.png" alt="Data Forge 500" width="150">
 </p>
 
 
