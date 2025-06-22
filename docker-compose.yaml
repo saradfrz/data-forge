@@ -108,6 +108,7 @@ services:
     restart: always
    
   spark-master:
+    user: "0:0"
     image: bitnami/spark:3.5.0
     container_name: spark-master
     ports:
@@ -115,9 +116,11 @@ services:
       - "7077:7077"
     volumes:
     - ./spark/src:/opt/bitnami/spark/workspace
-    - ./etl/bronze:/home/jovyan/data/bronze
-    - ./etl/gold:/home/jovyan/data/gold
-
+    - ./etl/bronze:/home/jovyan/data/bronze:rw,z
+    - type: bind
+      source: ./etl/gold
+      target: /home/jovyan/data/gold
+      consistency: cached
     environment:
       - SPARK_MODE=master
       - SPARK_CLASSPATH=/opt/hive/lib/*
@@ -126,6 +129,7 @@ services:
       - ndsnet
 
   spark-worker:
+    user: "0:0"
     image: bitnami/spark:3.5.0
     container_name: spark-worker
     depends_on:
@@ -134,33 +138,42 @@ services:
       - "8081:8081"
     volumes:
       - ./spark/src:/opt/bitnami/spark/workspace
-      - ./etl/bronze:/home/jovyan/data/bronze
-      - ./etl/gold:/home/jovyan/data/gold
+      - ./etl/bronze:/home/jovyan/data/bronze:rw,z
+      - type: bind
+        source: ./etl/gold
+        target: /home/jovyan/data/gold
+        consistency: cached
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
       - SPARK_CLASSPATH=/opt/hive/lib/*
       - SPARK_SQL_CATALOG_IMPLEMENTATION=hive
+      - HADOOP_USER_NAME=jovyan
     networks:
       - ndsnet
 
   jupyter:
+    user: "0:0"
     build:
       context: ./jupyter
       dockerfile: ./Dockerfile
     container_name: jupyter
-    user: root
     depends_on:
       - spark-master
     ports:
       - "8888:8888"
     volumes:
       - ./jupyter/notebooks:/home/jovyan/work
-      - ./etl/bronze:/home/jovyan/data/bronze
-      - ./etl/gold:/home/jovyan/data/gold
+      - ./etl/bronze:/home/jovyan/data/bronze:rw,z
+      - type: bind
+        source: ./etl/gold
+        target: /home/jovyan/data/gold
+        consistency: delegated
+        read_only: false
     environment:
       - SPARK_MASTER=spark://spark-master:7077
       - PYSPARK_PYTHON=python3
+      - HADOOP_USER_NAME=jovyan
     networks:
       - ndsnet
 
@@ -182,7 +195,7 @@ services:
         - "8088:8088"
       volumes:
         - ./trino/etc:/etc/trino
-        - ./etl/gold:/data/gold  # Parquet files path
+        - ./etl/gold:/data/gold  
       networks:
         - ndsnet
 
