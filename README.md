@@ -40,8 +40,8 @@ This project simulates a real-world ETL pipeline using Spark, PostgreSQL, Trino,
 ### ▶️ Start All Services
 
 ```bash
-make compose-up
-````
+ make -f .makefile compose-up
+```
 
 This will:
 
@@ -49,10 +49,20 @@ This will:
 * Launch all containers in detached mode
 * Fix permissions on Docker socket and Trino configs
 
+Note: If you get the error 
+```bash
+Error response from daemon: network with name ndsnet already exists
+```
+
+run
+```bash
+docker network rm ndsnet
+```
+
 ### ⛔ Stop All Services
 
 ```bash
-make compose-down
+ make -f .makefile compose-down
 ```
 
 This will:
@@ -62,57 +72,6 @@ This will:
 
 ---
 
-## 🧯 Troubleshooting
-
-### 🐳 Docker Socket Permission Error
-
-```bash
-sudo chmod 666 /var/run/docker.sock
-```
-
-Or re-run `make compose-up` to reset permissions.
-
----
-
-### 🐘 Can't Connect to Postgres?
-
-Verify:
-
-* `silver-postgres` is running:
-
-  ```bash
-  docker ps | grep silver-postgres
-  ```
-* Network connection:
-
-  ```bash
-  docker exec -it jupyter ping silver-postgres
-  ```
-
----
-
-### 🧪 Trino Doesn’t Show Tables?
-
-Ensure:
-
-* Your Parquet files are saved in `/data/gold`
-* Trino `hive.properties` points to `/data/gold`
-* Use this in Trino CLI:
-
-  ```sql
-  SHOW TABLES FROM hive.default;
-  ```
-
----
-
-### 🔁 Rebuild Specific Services
-
-```bash
-docker-compose build jupyter
-docker-compose up -d jupyter
-```
-
----
 
 ## 📁 Folder Structure (Essential)
 
@@ -132,5 +91,5 @@ docker-compose up -d jupyter
 
 ---
 
-## 📄 Project Mantinar
-Sara Fernandes - saradfrz@gmail.com
+## 📄 Project Maintainer
+Sara Fernandez - saradfrz@gmail.com
