@@ -115,6 +115,9 @@ services:
       - "7077:7077"
     volumes:
     - ./spark/src:/opt/bitnami/spark/workspace
+    - ./etl/bronze:/home/jovyan/data/bronze
+    - ./etl/gold:/home/jovyan/data/gold
+
     environment:
       - SPARK_MODE=master
       - SPARK_CLASSPATH=/opt/hive/lib/*
@@ -131,6 +134,8 @@ services:
       - "8081:8081"
     volumes:
       - ./spark/src:/opt/bitnami/spark/workspace
+      - ./etl/bronze:/home/jovyan/data/bronze
+      - ./etl/gold:/home/jovyan/data/gold
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
@@ -152,6 +157,7 @@ services:
     volumes:
       - ./jupyter/notebooks:/home/jovyan/work
       - ./etl/bronze:/home/jovyan/data/bronze
+      - ./etl/gold:/home/jovyan/data/gold
     environment:
       - SPARK_MASTER=spark://spark-master:7077
       - PYSPARK_PYTHON=python3
