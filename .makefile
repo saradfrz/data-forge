@@ -11,6 +11,9 @@ compose-up:
 	sudo chmod 666 /var/run/docker.sock
 	sudo chown -R $$USER:$$USER ./trino/etc/*
 	export DOCKER_HOST=unix:///var/run/docker.sock
+	sudo chmod -R 777 ./etl/gold
+	sudo chmod -R 777 ./etl/silver
+	
 
 # Tear down Docker Compose services
 .PHONY: compose-down
