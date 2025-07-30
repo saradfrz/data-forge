@@ -121,6 +121,7 @@ services:
       source: ./etl/gold
       target: /home/jovyan/data/gold
       consistency: cached
+    - ./spark/jars/postgresql-42.7.3.jar:/opt/bitnami/spark/jars/postgresql.jar
     environment:
       - SPARK_MODE=master
       - SPARK_CLASSPATH=/opt/hive/lib/*
@@ -143,6 +144,7 @@ services:
         source: ./etl/gold
         target: /home/jovyan/data/gold
         consistency: cached
+      - ./spark/jars/postgresql-42.7.3.jar:/opt/bitnami/spark/jars/postgresql.jar
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
@@ -170,6 +172,7 @@ services:
         target: /home/jovyan/data/gold
         consistency: delegated
         read_only: false
+      - ./spark/jars/postgresql-42.7.3.jar:/usr/local/spark/jars/postgresql.jar
     environment:
       - SPARK_MASTER=spark://spark-master:7077
       - PYSPARK_PYTHON=python3
