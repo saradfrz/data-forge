@@ -5,11 +5,10 @@
   <br>
 </p>
 
-
 **Fully Dockerized Data Engineering Portfolio Project**  
 *Following the Medallion Architecture (Bronze → Silver → Gold)*
 
-This project simulates a real-world ETL pipeline using Spark, PostgreSQL, Trino, Airflow, and Jupyter — all orchestrated with Docker Compose.
+This project simulates a real-world ETL pipeline using Spark, PostgreSQL, and Jupyter — all orchestrated with Docker Compose.
 
 ---
 
@@ -17,8 +16,8 @@ This project simulates a real-world ETL pipeline using Spark, PostgreSQL, Trino,
 
 - **Bronze Layer**: Raw JSON stored locally
 - **Silver Layer**: Cleaned & normalized data in PostgreSQL (dev/prod schemas)
-- **Gold Layer**: BI-ready Parquet datasets queried via Trino
-- **Tools**: Spark, Jupyter, Trino, Airflow, PostgreSQL
+- **Gold Layer**: BI-ready Parquet datasets for analytics
+- **Tools**: Spark, Jupyter, PostgreSQL
 
 ---
 
@@ -26,8 +25,6 @@ This project simulates a real-world ETL pipeline using Spark, PostgreSQL, Trino,
 
 | Service          | URL                             | Description                     |
 |------------------|----------------------------------|---------------------------------|
-| **Airflow**      | [localhost:8080](http://localhost:8080) | Workflow orchestration         |
-| **Trino**        | [localhost:8088](http://localhost:8088) | SQL query engine for Parquet   |
 | **Jupyter Lab**  | [localhost:8888](http://localhost:8888) | Notebook-based dev environment |
 | **Spark Master** | [localhost:8082](http://localhost:8082) | Spark Web UI                   |
 | **Spark Worker** | [localhost:8081](http://localhost:8081) | Worker node monitoring         |
@@ -47,7 +44,7 @@ This will:
 
 * Create a shared Docker network (`ndsnet`)
 * Launch all containers in detached mode
-* Fix permissions on Docker socket and Trino configs
+* Fix permissions on Docker socket
 
 Note: If you get the error 
 ```bash
@@ -72,19 +69,16 @@ This will:
 
 ---
 
-
 ## 📁 Folder Structure (Essential)
 
 ```bash
 .
-├── airflow/              # DAGs, logs, plugins
 ├── etl/
 │   ├── bronze/           # Raw input JSONs
 │   └── gold/             # Final Parquet tables
 ├── jupyter/              # Jupyter Dockerfile + notebooks
 ├── robots/               # Optional custom service
 ├── spark/src/            # Spark ETL jobs
-├── trino/etc/            # Config files + catalog definitions
 ├── Makefile
 └── docker-compose.yaml
 ```
@@ -92,4 +86,4 @@ This will:
 ---
 
 ## 📄 Project Maintainer
-Sara Fernandez - saradfrz@gmail.com
+Sara Fernandez 
