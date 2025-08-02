@@ -83,6 +83,14 @@ This will:
 └── docker-compose.yaml
 ```
 
+## Installing the project for the first time
+- Install Docker
+- Install WSL distro: ``
+- Configure git 
+- Clone project
+
+- Rename jupyter/notebooks/env_example to jupyter/notebooks/.env
+
 ---
 
 ## 📄 Project Maintainer

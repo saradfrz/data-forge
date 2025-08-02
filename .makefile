@@ -9,7 +9,6 @@ compose-up:
 	docker network create ndsnet
 	docker-compose -f $(COMPOSE_FILE) up -d
 	sudo chmod 666 /var/run/docker.sock
-	sudo chown -R $$USER:$$USER ./trino/etc/*
 	export DOCKER_HOST=unix:///var/run/docker.sock
 	sudo chmod -R 777 ./etl/gold
 	sudo chmod -R 777 ./etl/silver
