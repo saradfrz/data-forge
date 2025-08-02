@@ -33,7 +33,7 @@ services:
     volumes:
     - ./spark/src:/opt/bitnami/spark/workspace
     - ./etl/bronze:/home/jovyan/data/bronze:rw
-    - ./etl/bronze:/home/jovyan/data/gold:rw
+    - ./etl/gold:/home/jovyan/data/gold:rw
     - ./spark/jars/postgresql-42.7.3.jar:/opt/bitnami/spark/jars/postgresql.jar
     environment:
       - SPARK_MODE=master
@@ -53,7 +53,7 @@ services:
     volumes:
       - ./spark/src:/opt/bitnami/spark/workspace
       - ./etl/bronze:/home/jovyan/data/bronze:rw,z
-      - ./etl/bronze:/home/jovyan/data/gold:rw,z
+      - ./etl/gold:/home/jovyan/data/gold:rw,z
       - ./spark/jars/postgresql-42.7.3.jar:/opt/bitnami/spark/jars/postgresql.jar
     environment:
       - SPARK_MODE=worker
@@ -76,8 +76,8 @@ services:
       - "8888:8888"
     volumes:
       - ./jupyter/notebooks:/home/jovyan/work
-      - ./etl/bronze:/home/jovyan/data/bronze:rw,z
-      - ./etl/bronze:/home/jovyan/data/gold:rw,z
+      - ./etl/bronze:/home/jovyan/work/data/bronze:rw
+      - ./etl/gold:/home/jovyan/work/data/gold:rw
       - ./spark/jars/postgresql-42.7.3.jar:/usr/local/spark/jars/postgresql.jar
     environment:
       - SPARK_MASTER=spark://spark-master:7077

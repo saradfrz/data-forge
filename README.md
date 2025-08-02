@@ -90,6 +90,12 @@ This will:
 - Clone project
 
 - Rename jupyter/notebooks/env_example to jupyter/notebooks/.env
+- Execute
+```bash
+wget -O /tmp/postgresql-42.7.3.jar \
+https://jdbc.postgresql.org/download/postgresql-42.7.3.jar && \
+mv /tmp/postgresql-42.7.3.jar ./spark/jars/
+```
 - Run `make -f .makefile compose-up`
 - If you can't access Jupyter, execute `docker logs jupyter` and search for the url with the token, like ` http://127.0.0.1:8888/lab?token=`
 
