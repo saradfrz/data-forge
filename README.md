@@ -90,6 +90,8 @@ This will:
 - Clone project
 
 - Rename jupyter/notebooks/env_example to jupyter/notebooks/.env
+- Run `make -f .makefile compose-up`
+- If you can't access Jupyter, execute `docker logs jupyter` and search for the url with the token, like ` http://127.0.0.1:8888/lab?token=`
 
 ---
 
