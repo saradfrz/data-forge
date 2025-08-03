@@ -1,0 +1,7 @@
+docker exec -it <your_jupyter_container> bash
+
+
+python3 -m venv /home/jovyan/.venv
+source /home/jovyan/.venv/bin/activate
+pip install ipykernel
+python -m ipykernel install --user --name etl-kernel --display-name "Python (etl-kernel)"

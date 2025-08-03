@@ -1,0 +1,102 @@
+networks:
+  ndsnet:
+    driver: bridge
+    external: true
+
+volumes:
+  sys_postgres_data:
+  gold_postgres_data:
+
+services:
+  gold-postgres:
+    image: postgres:13
+    container_name: gold-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - gold_postgres_data:/var/lib/postgresql/data
+      - ./initdb/gold:/docker-entrypoint-initdb.d  
+    networks:
+      - ndsnet
+    restart: always
+   
+  spark-master:
+    user: "0:0"
+    image: bitnami/spark:3.5.0
+    container_name: spark-master
+    ports:
+      - "8082:8080"
+      - "7077:7077"
+    volumes:
+    - ./spark/src:/opt/bitnami/spark/workspace
+    - ./etl/bronze:/home/jovyan/work/data/bronze:rw
+    - ./etl/gold:/home/jovyan/work/data/gold:rw
+    - ./spark/jars/postgresql-42.7.3.jar:/opt/bitnami/spark/jars/postgresql.jar
+    environment:
+      - SPARK_MODE=master
+      - SPARK_CLASSPATH=/opt/hive/lib/*
+      - SPARK_SQL_CATALOG_IMPLEMENTATION=hive
+    networks:
+      - ndsnet
+
+  spark-worker:
+    user: "0:0"
+    image: bitnami/spark:3.5.0
+    container_name: spark-worker
+    depends_on:
+      - spark-master
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./spark/src:/opt/bitnami/spark/workspace
+      - ./etl/bronze:/home/jovyan/work/data/bronze:rw
+      - ./etl/gold:/home/jovyan/work/data/gold:rw
+      - ./spark/jars/postgresql-42.7.3.jar:/opt/bitnami/spark/jars/postgresql.jar
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=4g         
+      - SPARK_DRIVER_MEMORY=4g 
+      - SPARK_CLASSPATH=/opt/hive/lib/*
+      - SPARK_SQL_CATALOG_IMPLEMENTATION=hive
+      - HADOOP_USER_NAME=jovyan
+    networks:
+      - ndsnet
+
+  jupyter:
+    user: "0:0"
+    build:
+      context: ./jupyter
+      dockerfile: ./Dockerfile
+    container_name: jupyter
+    depends_on:
+      - spark-master
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./jupyter/notebooks:/home/jovyan/work
+      - ./etl/bronze:/home/jovyan/work/data/bronze:rw
+      - ./etl/gold:/home/jovyan/work/data/gold:rw
+      - ./spark/jars/postgresql-42.7.3.jar:/usr/local/spark/jars/postgresql.jar
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - PYSPARK_PYTHON=python3
+      - HADOOP_USER_NAME=jovyan
+    networks:
+      - ndsnet
+
+  docker-proxy:
+    image: alpine/socat
+    container_name: docker-proxy
+    command: "TCP4-LISTEN:2375,fork,reuseaddr UNIX-CONNECT:/var/run/docker.sock"
+    ports:
+      - "2376:2375"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - ndsnet
+
+
