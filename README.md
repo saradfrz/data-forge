@@ -89,12 +89,14 @@ This will:
 - Configure git 
 - Clone project
 
-- Rename jupyter/notebooks/env_example to jupyter/notebooks/.env
+With Docker open: 
+- Run `sudo apt install make`
+- Rename `jupyter/notebooks/env_example` to `jupyter/notebooks/.env` and `env_example` to `.env`
 - Execute
 ```bash
 wget -O /tmp/postgresql-42.7.3.jar \
 https://jdbc.postgresql.org/download/postgresql-42.7.3.jar && \
-mv /tmp/postgresql-42.7.3.jar ./spark/jars/
+sudo mv /tmp/postgresql-42.7.3.jar ./spark/jars/
 ```
 - Run `make -f .makefile compose-up`
 
