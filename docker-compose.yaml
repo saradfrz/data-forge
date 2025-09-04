@@ -1,3 +1,5 @@
+version: "3.9"
+
 networks:
   ndsnet:
     driver: bridge
@@ -5,24 +7,25 @@ networks:
 
 volumes:
   sys_postgres_data:
-  gold_postgres_data:
 
 services:
-  gold-postgres:
+  # SOURCE POSTGRES
+  source-postgres:
     image: postgres:13
-    container_name: gold-postgres
+    container_name: source-postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5433:5432"
     volumes:
-      - gold_postgres_data:/var/lib/postgresql/data
-      - ./initdb/gold:/docker-entrypoint-initdb.d  
+      - sys_postgres_data:/var/lib/postgresql/data
+      - ./initdb/source:/docker-entrypoint-initdb.d  
     networks:
       - ndsnet
     restart: always
-   
+
+  # SPARK MASTER
   spark-master:
     user: "0:0"
     image: bitnami/spark:3.5.0
@@ -31,17 +34,22 @@ services:
       - "8082:8080"
       - "7077:7077"
     volumes:
-    - ./spark/src:/opt/bitnami/spark/workspace
-    - ./etl/bronze:/home/jovyan/work/data/bronze:rw
-    - ./etl/gold:/home/jovyan/work/data/gold:rw
-    - ./spark/jars/postgresql-42.7.3.jar:/opt/bitnami/spark/jars/postgresql.jar
+      - ./spark/src:/opt/bitnami/spark/workspace
+      - ./etl/bronze:/home/jovyan/work/data/bronze:rw
+      - ./etl/silver:/home/jovyan/work/data/silver:rw
+      - ./etl/gold:/home/jovyan/work/data/gold:rw
+      - ./spark/jars/postgresql-42.7.3.jar:/opt/bitnami/spark/jars/postgresql.jar
+      - ./spark/jars/delta-core_2.12-2.4.0.jar:/opt/bitnami/spark/jars/delta-core.jar
+      - ./spark/jars/delta-storage-3.2.0.jar:/opt/bitnami/spark/jars/delta-storage.jar
     environment:
       - SPARK_MODE=master
-      - SPARK_CLASSPATH=/opt/hive/lib/*
-      - SPARK_SQL_CATALOG_IMPLEMENTATION=hive
+      - SPARK_CLASSPATH=/opt/bitnami/spark/jars/*
+      - SPARK_SQL_EXTENSIONS=io.delta.sql.DeltaSparkSessionExtension
+      - SPARK_SQL_CATALOG=org.apache.spark.sql.delta.catalog.DeltaCatalog
     networks:
       - ndsnet
 
+  # SPARK WORKER
   spark-worker:
     user: "0:0"
     image: bitnami/spark:3.5.0
@@ -53,19 +61,24 @@ services:
     volumes:
       - ./spark/src:/opt/bitnami/spark/workspace
       - ./etl/bronze:/home/jovyan/work/data/bronze:rw
+      - ./etl/silver:/home/jovyan/work/data/silver:rw
       - ./etl/gold:/home/jovyan/work/data/gold:rw
       - ./spark/jars/postgresql-42.7.3.jar:/opt/bitnami/spark/jars/postgresql.jar
+      - ./spark/jars/delta-core_2.12-2.4.0.jar:/opt/bitnami/spark/jars/delta-core.jar
+      - ./spark/jars/delta-storage-3.2.0.jar:/opt/bitnami/spark/jars/delta-storage.jar
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
       - SPARK_WORKER_MEMORY=4g         
       - SPARK_DRIVER_MEMORY=4g 
-      - SPARK_CLASSPATH=/opt/hive/lib/*
-      - SPARK_SQL_CATALOG_IMPLEMENTATION=hive
+      - SPARK_CLASSPATH=/opt/bitnami/spark/jars/*
+      - SPARK_SQL_EXTENSIONS=io.delta.sql.DeltaSparkSessionExtension
+      - SPARK_SQL_CATALOG=org.apache.spark.sql.delta.catalog.DeltaCatalog
       - HADOOP_USER_NAME=jovyan
     networks:
       - ndsnet
 
+  # JUPYTER NOTEBOOK
   jupyter:
     user: "0:0"
     build:
@@ -79,24 +92,35 @@ services:
     volumes:
       - ./jupyter/notebooks:/home/jovyan/work
       - ./etl/bronze:/home/jovyan/work/data/bronze:rw
+      - ./etl/silver:/home/jovyan/work/data/silver:rw
       - ./etl/gold:/home/jovyan/work/data/gold:rw
       - ./spark/jars/postgresql-42.7.3.jar:/usr/local/spark/jars/postgresql.jar
+      - ./spark/jars/delta-core_2.12-2.4.0.jar:/usr/local/spark/jars/delta-core.jar
+      - ./spark/jars/delta-storage-3.2.0.jar:/usr/local/spark/jars/delta-storage.jar
     environment:
       - SPARK_MASTER=spark://spark-master:7077
       - PYSPARK_PYTHON=python3
       - HADOOP_USER_NAME=jovyan
+      - SPARK_SQL_EXTENSIONS=io.delta.sql.DeltaSparkSessionExtension
+      - SPARK_SQL_CATALOG=org.apache.spark.sql.delta.catalog.DeltaCatalog
     networks:
       - ndsnet
 
-  docker-proxy:
-    image: alpine/socat
-    container_name: docker-proxy
-    command: "TCP4-LISTEN:2375,fork,reuseaddr UNIX-CONNECT:/var/run/docker.sock"
+  # WEB APP (Node.js / JS)
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+    container_name: webapp
     ports:
-      - "2376:2375"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - "3000:3000"
+    environment:
+      - POSTGRES_HOST=source-postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - source-postgres
     networks:
       - ndsnet
-
-
