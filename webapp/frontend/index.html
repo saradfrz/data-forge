@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Food Purchase App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Food Purchase Entry</h1>
+  <form id="purchaseForm">
+    <input type="text" id="code" placeholder="Item Code" required>
+    <input type="text" id="description" placeholder="Description" required>
+    <input type="number" id="quantity" placeholder="Quantity" step="0.01" required>
+    <input type="number" id="unit_price" placeholder="Unit Price" step="0.01" required>
+    <button type="submit">Submit</button>
+  </form>
+  <div id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
