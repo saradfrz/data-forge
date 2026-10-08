@@ -1,0 +1,12 @@
+.git
+.env
+.venv
+node_modules
+**/node_modules
+__pycache__
+**/__pycache__
+.local-store
+output
+logs
+etl
+web/dist

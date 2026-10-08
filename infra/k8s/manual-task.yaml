@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: forge-task
+  namespace: data-forge
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  containers:
+    - name: app
+      image: data-forge/app:0.1.0
+      imagePullPolicy: IfNotPresent
+      command: ["sleep", "3600"]
+      envFrom:
+        - secretRef:
+            name: forge-secrets
+      env:
+        - name: S3_ENDPOINT
+          value: http://minio:9000
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: kafka:9092
+      resources:
+        requests:
+          cpu: 500m
+          memory: 1Gi
+        limits:
+          cpu: "2"
+          memory: 5Gi

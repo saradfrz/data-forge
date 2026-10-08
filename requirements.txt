@@ -1,0 +1,8 @@
+# Python 3.11 in the image. Spark 3.5 / Delta 3.3 compatibility family.
+pyspark==3.5.6
+delta-spark==3.3.2
+boto3==1.35.99
+kafka-python==2.0.2
+fastapi==0.115.6
+uvicorn==0.34.0
+python-dotenv==1.0.1

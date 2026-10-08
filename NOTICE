@@ -1,0 +1,6 @@
+Data Forge — portfolio project for Sara Fernandez.
+Derived from the user's supplied Data Forge architecture and Python framework.
+Third-party software retains its own licenses. No source-provider market dataset,
+credentials, or original binary logo is redistributed in this package.
+Synthetic fixtures are generated for this project. MinIO build recipe references
+AGPLv3 source; Apache projects and other dependencies retain their notices.

@@ -1,0 +1,13 @@
+{
+  "delimiter": ",",
+  "instrument": "EURUSD",
+  "volume_unit": "unverified",
+  "fields": {
+    "event_ts": "Gmt time",
+    "bid": "Bid",
+    "ask": "Ask",
+    "bid_volume_source": "BidVolume",
+    "ask_volume_source": "AskVolume"
+  },
+  "timestamp_format": "%d.%m.%Y %H:%M:%S.%f%z"
+}

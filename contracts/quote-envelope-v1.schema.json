@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "dataset_id",
+    "event_id",
+    "instrument",
+    "event_ts",
+    "bid",
+    "ask",
+    "source_order",
+    "source_file_id",
+    "source_row_index"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "event_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "source_order": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "bid": {
+      "type": "string"
+    },
+    "ask": {
+      "type": "string"
+    }
+  }
+}
